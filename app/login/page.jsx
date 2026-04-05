@@ -33,34 +33,19 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        localStorage.setItem("user", JSON.stringify(data));
-
-        switch (data.role) {
-          case "admin":
-            router.push("/admin");
-            break;
-          case "student":
-            router.push("/dashboard/student");
-            break;
-          case "company":
-            router.push("/dashboard/company");
-            break;
-        }
-      } else {
-        alert(data.error);
+      if (result?.error) {
+        alert("Invalid credentials");
+      } else if (result?.ok) {
+        // Redirect will happen automatically via useEffect
       }
-    } catch (err) {
-      console.error(err);
-      alert("Something went wrong 😢");
+    } catch (error) {
+      alert("Login failed");
     }
   };
 
