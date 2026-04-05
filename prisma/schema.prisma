@@ -25,7 +25,6 @@ model Offer {
   company     User     @relation("CompanyOffers", fields: [companyId], references: [id])
   companyId   Int
   applications Application[]
-  stageApplicants: number; // ✅ ADD THIS
 
 }
 
