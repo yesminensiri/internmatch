@@ -52,3 +52,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+// DELETE a user by ID
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: "User ID required" }, { status: 400 });
+    }
+
+    await prisma.user.delete({
+      where: { id: parseInt(id) },
+    });
+
+    return NextResponse.json({ message: "User deleted successfully" });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
