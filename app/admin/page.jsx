@@ -2,15 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-};
-
 export default function AdminDashboard() {
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -19,10 +12,11 @@ export default function AdminDashboard() {
       .then((data) => setUsers(data));
   }, []);
 
-  const filteredUsers = users.filter((u) =>
-    u.name.toLowerCase().includes(search.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.toLowerCase()) ||
-    u.role.toLowerCase().includes(search.toLowerCase())
+  const filteredUsers = users.filter(
+    (u) =>
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase()) ||
+      u.role.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -47,14 +41,26 @@ export default function AdminDashboard() {
             key={user.id}
             className="bg-white p-6 rounded-3xl shadow-lg hover:scale-105 transition transform"
           >
-            <h2 className="text-2xl font-bold text-purple-700 mb-2">{user.name}</h2>
+            <h2 className="text-2xl font-bold text-purple-700 mb-2">
+              {user.name}
+            </h2>
             <p className="text-gray-600 mb-2">{user.email}</p>
-            <p className={`font-semibold mb-4 ${user.role === "student" ? "text-blue-500" : user.role === "company" ? "text-purple-700" : "text-pink-600"}`}>
+            <p
+              className={`font-semibold mb-4 ${
+                user.role === "student"
+                  ? "text-blue-500"
+                  : user.role === "company"
+                  ? "text-purple-700"
+                  : "text-pink-600"
+              }`}
+            >
               {user.role}
             </p>
             <button
               className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-2 rounded-xl font-bold hover:opacity-80 transition"
-              onClick={() => alert("Delete clicked! 🚫 (fonction non opérationnelle)")}
+              onClick={() =>
+                alert("Delete clicked! 🚫 (fonction non opérationnelle)")
+              }
             >
               Delete
             </button>
@@ -63,7 +69,9 @@ export default function AdminDashboard() {
       </div>
 
       {filteredUsers.length === 0 && (
-        <p className="text-center text-gray-500 mt-10">No users found 😢</p>
+        <p className="text-center text-gray-500 mt-10">
+          No users found 😢
+        </p>
       )}
     </div>
   );
