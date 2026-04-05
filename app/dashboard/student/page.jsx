@@ -11,6 +11,23 @@ export default function StudentDashboard() {
   const [offers, setOffers] = useState([]);
   const [applications, setApplications] = useState([]);
 
+  const loadData = async () => {
+    if (!session?.user?.id) return;
+    const studentId = session.user.id;
+
+    const offersRes = await fetch("/api/offers");
+    const offersData = await offersRes.json();
+    setOffers(offersData);
+
+    const appsRes = await fetch("/api/applications/my", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ studentId }),
+    });
+    const appsData = await appsRes.json();
+    setApplications(appsData);
+  };
+
   useEffect(() => {
     if (status === "loading") return;
     if (!session?.user || session.user.role !== "student") {
@@ -18,25 +35,14 @@ export default function StudentDashboard() {
       return;
     }
 
-    // Load data directly in useEffect to avoid setState in effect
-    const loadData = async () => {
-      if (!session?.user?.id) return;
-      const studentId = session.user.id;
-
-      const offersRes = await fetch("/api/offers");
-      const offersData = await offersRes.json();
-      setOffers(offersData);
-
-      const appsRes = await fetch("/api/applications/my", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ studentId }),
-      });
-      const appsData = await appsRes.json();
-      setApplications(appsData);
-    };
-
     loadData();
+
+    // Auto-refresh offers every 30 seconds
+    const interval = setInterval(() => {
+      loadData();
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, [session, status, router]);
 
   const apply = async (offerId) => {
@@ -114,7 +120,15 @@ export default function StudentDashboard() {
         </section>
 
         <section className="rounded-3xl bg-white p-6 md:p-8 shadow-lg border border-slate-200">
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-4">Available Offers</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-800">Available Offers</h2>
+            <button
+              onClick={loadData}
+              className="bg-slate-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-slate-700 transition text-sm"
+            >
+              🔄 Refresh
+            </button>
+          </div>
           {offers.length === 0 ? (
             <p className="text-slate-500">No offers available. Please check back shortly.</p>
           ) : (
