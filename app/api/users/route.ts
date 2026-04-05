@@ -48,8 +48,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(newUser);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Unknown error" }, { status: 500 });
   }
 }
 
@@ -68,7 +68,7 @@ export async function DELETE(req: NextRequest) {
     });
 
     return NextResponse.json({ message: "User deleted successfully" });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Unknown error" }, { status: 500 });
   }
 }

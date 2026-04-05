@@ -36,8 +36,8 @@ export async function POST(req: NextRequest) {
     };
 
     return NextResponse.json(response);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Unknown error" }, { status: 500 });
   }
 }
 // Get all applications of a student
@@ -60,7 +60,7 @@ export async function PUT(req: NextRequest) {
     });
 
     return NextResponse.json(updated);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Unknown error" }, { status: 500 });
   }
 }

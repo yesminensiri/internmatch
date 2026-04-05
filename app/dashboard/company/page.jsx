@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 
 export default function CompanyDashboard() {
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   const [offers, setOffers] = useState([]);
   const [title, setTitle] = useState("");
@@ -12,31 +14,35 @@ export default function CompanyDashboard() {
   const [type, setType] = useState("stage");
   const [selectedOffer, setSelectedOffer] = useState(null);
 
-  const company = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("user") || "{}") : null;
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    router.push("/login");
-  };
-
   useEffect(() => {
-    if (!company || company.role !== "company") {
+    if (status === "loading") return;
+    if (!session?.user || session.user.role !== "company") {
       router.push("/login");
       return;
     }
+
+    // Load offers directly in useEffect to avoid setState in effect
+    const loadOffers = async () => {
+      if (!session?.user?.id) return;
+
+      try {
+        const res = await fetch("/api/offers/my", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ companyId: session.user.id }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setOffers(data);
+        }
+      } catch (error) {
+        console.error("Failed to load offers:", error);
+      }
+    };
+
     loadOffers();
-  }, [company, router]);
-
-  const loadOffers = async () => {
-    const res = await fetch("/api/offers/my", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ companyId: company.id }),
-    });
-
-    const data = await res.json();
-    setOffers(data);
-  };
+  }, [session, status, router]);
 
   const addOffer = async () => {
     if (!title || !description) {
@@ -44,10 +50,12 @@ export default function CompanyDashboard() {
       return;
     }
 
+    if (!session?.user?.id) return;
+
     await fetch("/api/offers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description, type, companyId: company.id }),
+      body: JSON.stringify({ title, description, type, companyId: session.user.id }),
     });
 
     setTitle("");
@@ -63,6 +71,10 @@ export default function CompanyDashboard() {
     });
 
     loadOffers();
+  };
+
+  const handleLogout = () => {
+    signOut({ callbackUrl: "/login" });
   };
 
   return (

@@ -32,13 +32,15 @@ const handler = NextAuth({
 
     async session({ session }) {
       // Attach role and id from database
-      const dbUser = await prisma.user.findUnique({
-        where: { email: session.user?.email! },
-      });
+      if (session.user?.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: session.user.email },
+        });
 
-      if (dbUser) {
-        session.user.id = dbUser.id;
-        session.user.role = dbUser.role as "admin" | "student" | "company";
+        if (dbUser) {
+          session.user.id = dbUser.id;
+          session.user.role = dbUser.role as "admin" | "student" | "company";
+        }
       }
 
       return session;
