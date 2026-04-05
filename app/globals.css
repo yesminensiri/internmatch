@@ -1,6 +1,5 @@
-/* Tailwind imports for v4 */
-@import "tailwindcss/preflight";
-@import "tailwindcss/utilities";
+/* Tailwind CSS v4 */
+@import "tailwindcss";
 
 /* Custom CSS variables */
 :root {
